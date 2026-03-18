@@ -6,9 +6,7 @@ layout: slides
 
 # Enums in Java 21+ and TypeScript
 
-## Exhaustive Matching, Lookups, and Unions
-
-How both languages model closed sets, and where TypeScript can go beyond enums.
+Exhaustive Matching, Lookups, and Unions
 
 ---
 
@@ -42,7 +40,7 @@ They can also carry fields and methods.
 
 ---
 
-## Java Enums with Metadata
+## Java Enums with Extra Data 
 
 ```java
 public enum PaymentStatus {
@@ -96,7 +94,7 @@ Unions are way more powerful than enums in Typescript (discussed later).
 
 ---
 
-## [Java] Exhaustive Matching in Java 21+
+## Exhaustive Matching in Java 21+
 
 `switch` expressions make enum branching explicit and exhaustive.
 
@@ -106,21 +104,23 @@ static String render(PaymentStatus status) {
         case PENDING -> "Waiting for payment";
         case PAID -> "Paid";
         case FAILED -> "Payment failed";
+
         // normally we have a default value
         // default -> "Unknown status";
     };
 }
 ```
 
-If a new enum constant is added, missing cases become visible quickly.
+If a new enum value is added to PaymentStatus, missing case 
+in `switch` statement would cause a COMPILE error.
 
 ---
 
-## [Typescript] Enum Exhaustive Matching in TypeScript
+## Enum Exhaustive Matching in TypeScript
+
+Can achieve what Java 21 has, but with a trick.
 
 Use `switch` with `never` checking.
-
-This pattern works with both enums and unions.
 
 ```ts
 function render(status: PaymentStatus): string {
@@ -146,7 +146,7 @@ The compiler helps prove that all cases are handled.
 
 ---
 
-## [Typescript] Type-Safe Lookup Tables with `Record`
+## Type-Safe Lookup Tables with `Record`
 
 When the logic is just a lookup, `Record` is often cleaner than `switch`.
 
@@ -162,7 +162,7 @@ Add a new enum member and TypeScript forces the table to be updated.
 
 ---
 
-## [Typescript] Type-Safe Lookup Tables with `Record` - Cont
+## Type-Safe Lookup Tables with `Record` - Cont
 
 Remember, the mapped values don't have to be primitive values.
 
@@ -219,7 +219,7 @@ It does not say what data belongs to each state.
 
 ---
 
-## Solution: more advanced unions
+## Solution: More Advanced Unions
 
 This union definition
 ```ts
@@ -248,7 +248,7 @@ Now every union value will include the 3 shared attributes.
 
 ---
 
-## Data modeling (bad but often done)
+## Data Modeling (bad but often done)
 
 The Problem with Enum Plus Optional Fields
 
@@ -309,7 +309,7 @@ This is often the better TypeScript abstraction for UI state.
 
 ---
 
-## Unions are strong, what about Java - Sealed Interface
+## Unions Are Strong, What About Java - Sealed Interface
 
 Java can model the same idea with a sealed interface and records:
 
@@ -324,6 +324,22 @@ record Error(String message) implements RequestState {}
 ```
 
 This gives Java a closed set of variants with data attached to each case.
+
+---
+
+## Choose Between Enums and Sealed Interface
+
+Use enum for (simple shapes):
+- status codes 
+- modes 
+- categories
+- fixed labels
+
+Use sealed interface for (more complex shapes):
+- request states 
+- command/result types 
+- workflows 
+- domain events
 
 ---
 
@@ -350,37 +366,66 @@ Compiler is our friend, make MORE use of it!
 
 Type safety analogy:
 
-- compile time 
-  - security check at airport, detects drugs, explosives, wanted criminals/terrists etc.
-- runtime
-  - illegal stuff/terrists on the plane 
+- compile time - security check at international airport 
+  - detects drugs, other illegal items and criminals from boarding etc.
+- runtime - illegal stuff/criminals onboard the plane
+  - still catchable, but harder, foreign country/legislation etc
 
 If you can catch errors at compile time, try not to leave it to runtime 
 
 --- 
 
 ## How to catch more errors at compile time
-- proper modeling
-- proper usage of types
+- proper modeling & usage of types
   - avoid `any` type 
-  - avoid making classes full of primitive types, again, proper modeling
-  - Branded types for key properties in domain models, compile time type safety without runtime object wrapping cost
-    - e.g. 
-      instead of:
-      ```ts
-      type User = {id: string, name: string, email:string} 
-      ```
-      you can have:
-      ```ts
-      // Cheap!
-      // Userid at compile time, but string at runtime
-      type UserId = Brand<string, "UserId">
-      type EmailAddress = Brand<string, "EmailAddress">
+  - avoid primitive type everywhere
+  - Branded types (Typescript)
+  - phantom types (both Java and Typescript) 
+  - more advanced typing techniques
 
-      type User = {id: UserId, name: string, email: EmailAddress} 
+--- 
 
-      // Expensive below!
-      // type UserId = {value: string}
-      // type EmailAddress = {value: string}
-      ```
-  - phantom types and more advanced typing techniques
+## Branded Types
+  
+Branded types are mostly used for key properties in domain models, compile time type safety without runtime object wrapping cost, e.g. 
+
+Instead of:
+
+```ts
+type User = {id: string, name: string, email:string} 
+```
+
+you can have:
+
+```ts
+/**
+  Branded type CHEAP!
+  Userid at compile time, but string at runtime
+
+  Object wrapping primitive type EXPENSIVE!
+  type UserId = {value: string}
+**/
+
+type UserId = Brand<string, "UserId">
+type EmailAddress = Brand<string, "EmailAddress">
+
+type User = {id: UserId, name: string, email: EmailAddress} 
+```
+
+---
+
+## Branded Types - Cont
+
+Can use a session to talk about Branded types and how to use
+them to improve:
+* code readability 
+* most robust application
+
+---
+
+## Phantom Types
+
+Can have a separate sesion to dicuss this and how to use
+it to 
+* improve our modeling 
+* prevent certain illegal code/state from passing compiler check
