@@ -346,6 +346,8 @@ In TypeScript:
 
 ## Extra Takeaway
 
+Compiler is our friend, make MORE use of it!
+
 Type safety analogy:
 
 - compile time 
@@ -355,8 +357,30 @@ Type safety analogy:
 
 If you can catch errors at compile time, try not to leave it to runtime 
 
-How to catch more errors at compile time:
+--- 
+
+## How to catch more errors at compile time
 - proper modeling
 - proper usage of types
   - avoid `any` type 
   - avoid making classes full of primitive types, again, proper modeling
+  - Branded types for key properties in domain models, compile time type safety without runtime object wrapping cost
+    - e.g. 
+      instead of:
+      ```ts
+      type User = {id: string, name: string, email:string} 
+      ```
+      you can have:
+      ```ts
+      // Cheap!
+      // Userid at compile time, but string at runtime
+      type UserId = Brand<string, "UserId">
+      type EmailAddress = Brand<string, "EmailAddress">
+
+      type User = {id: UserId, name: string, email: EmailAddress} 
+
+      // Expensive below!
+      // type UserId = {value: string}
+      // type EmailAddress = {value: string}
+      ```
+  - phantom types and more advanced typing techniques
