@@ -7,3 +7,4 @@
 /docs/_site/
 .bundle/*
 !.bundle/config
+_site/
