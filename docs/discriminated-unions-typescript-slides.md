@@ -1,5 +1,5 @@
 ---
-title: Discriminated Unions in TypeScript Slides
+title: Discriminated Unions in TypeScript - Slides
 description: Slide deck version of the guide, focused on UI state, narrowing, exhaustive checks, and simple state machines.
 layout: slides
 ---

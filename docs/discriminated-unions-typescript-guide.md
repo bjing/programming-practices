@@ -1,10 +1,11 @@
-
 ---
-title: Discriminated Unions and State Machines in TypeScript
+title: Discriminated Unions in TypeScript
 description: How discriminated unions model UI state safely and lead naturally into event-driven state machines.
+layout: default
 ---
 
-# Discriminated Unions & State Machines in TypeScript (Frontend Robustness Guide)
+# Discriminated Unions in TypeScript 
+(Frontend Robustness Guide)
 
 ## What is a Discriminated Union?
 
