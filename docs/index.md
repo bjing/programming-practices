@@ -16,7 +16,11 @@ This index is generated automatically from the published pages in this directory
     {% if page.description %}
       <p>{{ page.description }}</p>
     {% endif %}
-    <p class="doc-meta"><code>{{ page.path | default: page.name }}</code></p>
+    <p class="doc-meta">
+      <strong>{% if page.layout == "slides" %}Slides{% else %}Article{% endif %}</strong>
+      <span>·</span>
+      <code>{{ page.path | default: page.name }}</code>
+    </p>
   </article>
 {% endfor %}
 </div>
@@ -33,7 +37,11 @@ No published docs found yet.
 ---
 title: Your Page Title
 description: One-sentence summary for the docs index.
+layout: default
 ---
 ```
 
-3. Commit and push. The page will be published and added here automatically.
+Use `layout: slides` for a slide deck.
+
+3. Separate slides with `---` when using the slides layout.
+4. Commit and push. The page will be published and added here automatically.

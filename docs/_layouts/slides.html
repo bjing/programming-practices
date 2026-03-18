@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-1: #1f2331;
+        --bg-2: #0f1724;
+        --bg-3: #8b4513;
+        --text: #f8f3e7;
+        --muted: #d0c4a8;
+        --accent: #f0a65b;
+        --accent-2: #7fd1b9;
+        --line: rgba(248, 243, 231, 0.18);
+        --code-bg: rgba(15, 23, 36, 0.55);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(240, 166, 91, 0.22), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(127, 209, 185, 0.18), transparent 30%),
+          linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 62%, var(--bg-3) 100%);
+      }
+
+      body {
+        padding: 1rem;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .deck-shell {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+      }
+
+      .deck-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        color: var(--muted);
+      }
+
+      .deck-topbar a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .deck-topbar a:hover {
+        color: var(--text);
+      }
+
+      .deck-stage {
+        position: relative;
+        min-height: calc(100vh - 6.5rem);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(16px);
+      }
+
+      .slides {
+        position: relative;
+        width: 100%;
+        min-height: calc(100vh - 6.5rem);
+      }
+
+      .slides > section {
+        display: none;
+        min-height: calc(100vh - 6.5rem);
+        padding: clamp(1.75rem, 4vw, 4rem);
+        align-items: flex-start;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      .slides > section.is-active {
+        display: flex;
+      }
+
+      .slides > section > :first-child {
+        margin-top: 0;
+      }
+
+      h1, h2, h3 {
+        line-height: 1.05;
+        margin-bottom: 0.8rem;
+      }
+
+      h1 {
+        font-size: clamp(2.8rem, 7vw, 5rem);
+        max-width: 12ch;
+      }
+
+      h2 {
+        font-size: clamp(2rem, 5vw, 3.3rem);
+      }
+
+      h3 {
+        font-size: clamp(1.5rem, 4vw, 2.2rem);
+      }
+
+      p, li {
+        font-size: clamp(1.05rem, 2vw, 1.4rem);
+        line-height: 1.5;
+      }
+
+      ul, ol {
+        padding-left: 1.35rem;
+      }
+
+      pre {
+        width: min(100%, 980px);
+        overflow-x: auto;
+        padding: 1rem 1.15rem;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: var(--code-bg);
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.9em;
+      }
+
+      :not(pre) > code {
+        padding: 0.12rem 0.35rem;
+        border-radius: 0.35rem;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      blockquote {
+        margin: 1.25rem 0;
+        padding-left: 1rem;
+        border-left: 4px solid var(--accent);
+        color: var(--muted);
+      }
+
+      .deck-controls {
+        position: absolute;
+        right: 1rem;
+        bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0.75rem 0.9rem;
+        border-radius: 999px;
+        background: rgba(15, 23, 36, 0.55);
+        border: 1px solid var(--line);
+      }
+
+      .deck-controls button {
+        appearance: none;
+        border: 0;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      .deck-controls button:hover {
+        background: rgba(255, 255, 255, 0.18);
+      }
+
+      .deck-count {
+        min-width: 4.5rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .deck-raw {
+        display: none;
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 0.6rem;
+        }
+
+        .deck-topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .deck-stage,
+        .slides,
+        .slides > section {
+          min-height: calc(100vh - 5.5rem);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="deck-shell">
+      <header class="deck-topbar">
+        <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
+        <div>
+          <a href="{{ '/' | relative_url }}">All docs</a>
+        </div>
+      </header>
+      <div class="deck-stage">
+        <div id="deck-source" class="deck-raw">{{ content }}</div>
+        <div id="slides" class="slides" aria-live="polite"></div>
+        <div class="deck-controls">
+          <button id="prev-slide" type="button" aria-label="Previous slide">&larr;</button>
+          <div id="deck-count" class="deck-count">1 / 1</div>
+          <button id="next-slide" type="button" aria-label="Next slide">&rarr;</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        const source = document.getElementById("deck-source");
+        const deck = document.getElementById("slides");
+        const counter = document.getElementById("deck-count");
+        const prevButton = document.getElementById("prev-slide");
+        const nextButton = document.getElementById("next-slide");
+
+        const nodes = Array.from(source.childNodes);
+        let currentSection = document.createElement("section");
+        const sections = [];
+
+        function pushSectionIfNotEmpty() {
+          if (currentSection.childNodes.length > 0) {
+            sections.push(currentSection);
+            deck.appendChild(currentSection);
+            currentSection = document.createElement("section");
+          }
+        }
+
+        nodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE && node.tagName === "HR") {
+            pushSectionIfNotEmpty();
+            return;
+          }
+
+          currentSection.appendChild(node.cloneNode(true));
+        });
+
+        pushSectionIfNotEmpty();
+
+        let currentIndex = 0;
+
+        function render() {
+          sections.forEach((section, index) => {
+            section.classList.toggle("is-active", index === currentIndex);
+          });
+
+          counter.textContent = `${currentIndex + 1} / ${sections.length}`;
+          prevButton.disabled = currentIndex === 0;
+          nextButton.disabled = currentIndex === sections.length - 1;
+        }
+
+        function move(delta) {
+          const nextIndex = currentIndex + delta;
+          if (nextIndex < 0 || nextIndex >= sections.length) {
+            return;
+          }
+
+          currentIndex = nextIndex;
+          render();
+        }
+
+        prevButton.addEventListener("click", () => move(-1));
+        nextButton.addEventListener("click", () => move(1));
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowRight" || event.key === "PageDown" || event.key === " ") {
+            event.preventDefault();
+            move(1);
+          }
+
+          if (event.key === "ArrowLeft" || event.key === "PageUp") {
+            event.preventDefault();
+            move(-1);
+          }
+        });
+
+        render();
+      }());
+    </script>
+  </body>
+</html>
