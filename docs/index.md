@@ -4,14 +4,22 @@ title: Docs
 
 # Docs
 
-This index is generated automatically from the Markdown pages in this directory.
+This index is generated automatically from the published pages in this directory.
 
-{% assign doc_pages = site.pages | where_exp: "item", "item.name != 'index.md'" | where_exp: "item", "item.ext == '.md'" | sort: "title" %}
+{% assign doc_pages = site.html_pages | where_exp: "item", "item.url != '/'" | sort: "title" %}
 
 {% if doc_pages.size > 0 %}
+<div class="doc-list">
 {% for page in doc_pages %}
-- [{{ page.title | default: page.name | replace: '.md', '' }}]({{ page.url | relative_url }})
+  <article class="doc-card">
+    <h2><a href="{{ page.url | relative_url }}">{{ page.title | default: page.name | replace: '.html', '' }}</a></h2>
+    {% if page.description %}
+      <p>{{ page.description }}</p>
+    {% endif %}
+    <p class="doc-meta"><code>{{ page.path | default: page.name }}</code></p>
+  </article>
 {% endfor %}
+</div>
 {% else %}
 No published docs found yet.
 {% endif %}
@@ -19,11 +27,12 @@ No published docs found yet.
 ## Adding a New Page
 
 1. Create a new Markdown file in `docs/`.
-2. Start it with this minimal front matter:
+2. Start it with this front matter:
 
 ```md
 ---
 title: Your Page Title
+description: One-sentence summary for the docs index.
 ---
 ```
 
