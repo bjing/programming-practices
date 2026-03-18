@@ -2,6 +2,8 @@
 title: Local Jekyll Preview
 description: How to install gems locally with Bundler and run the docs site on your machine.
 layout: default
+pin_bottom: true
+hide_from_index: true
 ---
 
 # Local Jekyll Preview

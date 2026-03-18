@@ -2,6 +2,7 @@
 title: New Slide Deck
 description: One-sentence summary for the docs index.
 layout: slides
+hide_from_index: false
 ---
 
 # New Slide Deck
