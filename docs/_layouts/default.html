@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f8f6ef;
+        --surface: rgba(255, 255, 255, 0.85);
+        --text: #1e1d1a;
+        --muted: #5b574e;
+        --line: #d8d1bf;
+        --accent: #9b4d16;
+        --accent-strong: #72370f;
+        --code-bg: #f2ece0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(216, 181, 128, 0.35), transparent 32%),
+          linear-gradient(180deg, #fbfaf5 0%, var(--bg) 100%);
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      a:hover {
+        color: var(--accent-strong);
+      }
+
+      .shell {
+        width: min(860px, calc(100vw - 2rem));
+        margin: 3rem auto;
+        padding: 2rem;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 18px 40px rgba(56, 43, 20, 0.08);
+        backdrop-filter: blur(12px);
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: center;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .site-title {
+        font-size: 0.95rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-decoration: none;
+      }
+
+      .home-link {
+        font-size: 0.95rem;
+      }
+
+      main {
+        line-height: 1.7;
+      }
+
+      h1, h2, h3 {
+        line-height: 1.2;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 6vw, 3.2rem);
+        margin-top: 0;
+      }
+
+      code {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.92em;
+        background: var(--code-bg);
+        padding: 0.12rem 0.35rem;
+        border-radius: 0.35rem;
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 1rem;
+        background: var(--code-bg);
+        border-radius: 0.8rem;
+        border: 1px solid var(--line);
+      }
+
+      pre code {
+        background: transparent;
+        padding: 0;
+      }
+
+      blockquote {
+        margin: 1.5rem 0;
+        padding-left: 1rem;
+        border-left: 4px solid var(--line);
+        color: var(--muted);
+      }
+
+      img {
+        max-width: 100%;
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          margin: 1rem auto;
+          padding: 1.25rem;
+        }
+
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+        {% unless page.url == '/' %}
+          <a class="home-link" href="{{ '/' | relative_url }}">All docs</a>
+        {% endunless %}
+      </header>
+      <main>
+        {{ content }}
+      </main>
+    </div>
+  </body>
+</html>

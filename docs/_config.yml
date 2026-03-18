@@ -1,0 +1,10 @@
+title: Programming Practices
+description: Notes and guides published from the docs directory.
+permalink: pretty
+markdown: kramdown
+defaults:
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: default
