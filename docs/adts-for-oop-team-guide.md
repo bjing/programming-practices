@@ -1,11 +1,11 @@
 ---
-title: Algebraic Data Types - Slides
-layout: slides
+title: Algebraic Data Types
+layout: default
 ---
 
 # Algebraic Data Types
 
-### A compiler that argues back
+## A compiler that argues back
 
 *Making illegal states unrepresentable*
 
@@ -13,8 +13,9 @@ layout: slides
 
 ## What we're NOT doing today
 
+- Rewriting everything in Haskell
 - Abandoning OOP
-- Learning math category theory
+- Learning category theory
 
 ---
 
