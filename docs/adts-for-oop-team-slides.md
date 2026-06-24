@@ -14,7 +14,7 @@ layout: slides
 ## What we're NOT doing today
 
 - Abandoning OOP
-- Learning math category theory
+- Learning math/category theory
 
 ---
 
@@ -28,7 +28,7 @@ Picking up **one new tool** that:
 
 ---
 
-## You already know this
+## A familiar type
 
 `Optional<T>` is an ADT.
 
@@ -46,21 +46,24 @@ You can't accidentally treat an empty as a present.
 
 ---
 
-## The problem — spot the bug
+## The problem — examine this code
 
 ```java
 public WorkingPaper resolveWorkingPaperForComment(CommentPojo pojo) {
+
   if (pojo.getTargetType() == TargetType.WP_ID) {
     return workingPaperRepository
         .findById(Long.parseLong(pojo.getTargetId()))
         .orElseThrow(...);
   }
+
   if (pojo.getTargetType() == TargetType.ACCOUNT_ID) {
     return workingPaperDetailRepository
         .findByAccountIdAndWppId(pojo.getTargetId(), pojo.getWorkingPaperPackId())
         .map(WorkingPaperDetail::getWorkingPaper)
         .orElseThrow(...);
   }
+
   throw new IllegalStateException(
       "Cannot resolve WorkingPaper for targetType " + pojo.getTargetType());
 }
@@ -117,7 +120,8 @@ Together: **Algebraic Data Types**
 
 ```java
 public sealed interface CommentTarget
-    permits CommentTarget.ForWP, CommentTarget.ForAccount {
+    permits CommentTarget.ForWP,
+            CommentTarget.ForAccount {
 
   record ForWP(long workingPaperId) implements CommentTarget {
   }
@@ -130,6 +134,29 @@ public sealed interface CommentTarget
 - `sealed` — only listed types can implement this
 - `permits` — the complete list of variants
 - `record` — lightweight, immutable, carries the right data
+
+---
+
+## Add conversion from `CommentPojo` to `CommentTarget`
+
+```java
+CommentTarget toCommentTarget(CommentPojo pojo) {
+  return switch (pojo.getTargetType()) {
+    case WP_ID ->
+        new CommentTarget.ForWP(Long.parseLong(pojo.getTargetId()));
+
+    case ACCOUNT_ID ->
+        new CommentTarget.ForAccount(
+            pojo.getTargetId(), pojo.getWorkingPaperPackId());
+
+    case WPP_ID ->
+        throw new IllegalArgumentException("WPP_ID is not a comment target");
+  };
+}
+```
+
+No `default`.
+**Add `DATASHEET_FIELD_ID` to `TargetType` → this conversion doesn't compile.**
 
 ---
 
@@ -149,7 +176,7 @@ WorkingPaper resolve(CommentTarget target) {
 ```
 
 No `default`. No runtime exception.
-**Add a new variant → doesn't compile until every switch handles it.**
+**Add a new `CommentTarget` variant → this switch doesn't compile.**
 
 ---
 
@@ -210,7 +237,7 @@ public sealed interface DocumentFunctionResponseEto
 
 DIVIDENDS_DECLARED(LoanType.DIV7A, "Dividends Declared"),
 
-CLOSING(null,"Closing Balance"),   // ← null = "common to all loan types"
+CLOSING(null, "Closing Balance"),   // ← null = "common to all loan types"
 
 private final LoanType loanType;    // null or not — you have to know
 
@@ -227,26 +254,40 @@ public boolean isValidForLoanType(LoanType loanType) {
 ## Compare: the new way
 
 ```java
-sealed interface LoanItemType permits LoanItemType.Common, LoanItemType.TypeSpecific {
+sealed interface LoanItemApplicability
+    permits LoanItemApplicability.Common,
+            LoanItemApplicability.TypeSpecific {
 
-  String displayName();
-
-  record Common(String displayName)
-      implements LoanItemType {
+  record Common()
+      implements LoanItemApplicability {
   }
 
-  record TypeSpecific(LoanType loanType, String displayName)
-      implements LoanItemType {
+  record TypeSpecific(LoanType loanType)
+      implements LoanItemApplicability {
   }
+}
+
+enum LoanItemType {
+  DIVIDENDS_DECLARED(
+      new LoanItemApplicability.TypeSpecific(LoanType.DIV7A),
+      "Dividends Declared"),
+
+  CLOSING(
+      new LoanItemApplicability.Common(),
+      "Closing Balance");
+
+  private final LoanItemApplicability applicability;
+  private final String displayName;
 }
 ```
 
-`TypeSpecific` *always* has a `loanType`. No null check.
-`Common` *never* has one. Can't even ask.
+`DIVIDENDS_DECLARED` and `CLOSING` remain domain concepts.
+The sealed type models how each item applies, without `null`.
+Future applicability variants can carry completely different data.
 
 ---
 
-## You're already doing this in TypeScript
+## You're already doing this in TypeScript (hopefully)
 
 ```typescript
 type DocumentFunctionResponse =
@@ -255,7 +296,7 @@ type DocumentFunctionResponse =
 
 function handle(response: DocumentFunctionResponse) {
   switch (response.kind) {
-    case 'success':
+    case 'success': 
       return processPayload(response.payload);  // payload typed here
     case 'failure':
       return handleError(response.error);
@@ -326,18 +367,18 @@ No null. No convention. Enforced by the compiler.
 
 ```java
 // Enum constants — there is exactly ONE FAILURE in the JVM
-Result.FAILURE
+Result.FAILURE("Error message")
 
 // Sealed records — each call creates a new instance with its own data
-new Result.
 
-Failure("network timeout",504)
-new Result.
+sealed interface Result.....
 
-Failure("not authorised",401)
+new Failure("network timeout",504)
+
+new Failure("not authorised",401)
 ```
 
-Enums can't model "a failure *with a specific message*".
+Enums can't model "a failure *with a specific error message*".
 They can only model "the concept of failure".
 
 ---
@@ -364,21 +405,15 @@ sealed interface Option<T> permits Option.Some, Option.None {
 
 ```java
 // Sealed record — pull out fields inline, compiler knows their types
-case Result.Failure(var message, var code) ->log.
-
-error("{}: {}",code, message);
+case Result.Failure(var message, var code) -> log.error("{}: {}",code, message);
 
 // Enum — no deconstruction, you call getters manually
-case FAILURE ->log.
-
-error("{}: {}",result.getCode(),result.
-
-getMessage());
+case FAILURE ->log.error("{}: {}",result.getCode(),result.getMessage());
 ```
 
 ---
 
-## Rule of thumb: enum vs sealed interface
+## Rule of thumb: enum vs sealed interface (ADT)
 
 | Use **enum** when                  | Use **sealed interface** when            |
 |------------------------------------|------------------------------------------|
@@ -388,6 +423,7 @@ getMessage());
 | JPA / Jackson serialisation        | You control serialisation                |
 
 `WorkingPaperStatus` → enum. Pure tags, no variant-specific data.
+
 `DocumentFunctionResponseEto` → sealed. `Failure` has fields `Success` doesn't.
 
 ---
